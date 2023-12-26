@@ -2,7 +2,7 @@
 
 import re
 
-with open('day5/data/data1', 'r') as f:
+with open('day5/data/data2', 'r') as f:
     read_data = f.read()
 extracted_lines = read_data.split("\n") # Extract each line
 
@@ -33,6 +33,18 @@ def compute_number(seed, soil_map):
         index += 1
     return number
 
+def compute_location(initial_seed):
+    soil = compute_number(int(seed), seed_to_soil)
+    fertilizer = compute_number(soil, soil_to_fertilizer)
+    water = compute_number(fertilizer, fertilizer_to_water)
+    light = compute_number(water, water_to_light)
+    temperature = compute_number(light, light_to_temperature)
+    humidity = compute_number(temperature, temperature_to_humidity)
+    location = compute_number(humidity, humidity_to_location)
+
+    return location
+
+
 # Extract data
 index_seed_to_soil = extracted_lines.index('seed-to-soil map:')
 index_soil_to_fertilizer = extracted_lines.index('soil-to-fertilizer map:')
@@ -62,15 +74,28 @@ humidity_to_location = convert_str_to_int(humidity_to_location)
 location_list = []
 
 for seed in seeds:
-    soil = compute_number(int(seed), seed_to_soil)
-    fertilizer = compute_number(soil, soil_to_fertilizer)
-    water = compute_number(fertilizer, fertilizer_to_water)
-    light = compute_number(water, water_to_light)
-    temperature = compute_number(light, light_to_temperature)
-    humidity = compute_number(temperature, temperature_to_humidity)
-    location = compute_number(humidity, humidity_to_location)
+    location = compute_location(seed)
     location_list.append(location)
 
 location_list = sorted(location_list)
 
 print(f"Lowest location for part 1 is {location_list[0]}")
+
+# -- PART 2 --
+location_list = []
+for index_seed in range(0,len(seeds),2):
+    initial_seed = int(seeds[index_seed])
+    last_seed = int(seeds[index_seed+1])
+
+    for seed in range(initial_seed,initial_seed+last_seed):
+        location = compute_location(seed)
+
+        # if len(location_list) > 0:
+        #     if location-1 == location_list[-1:][0]:
+        #         break
+        location_list.append(location)
+
+        print(f"Compute seed {seed}...")
+    location_list = sorted(location_list)
+    print(f"Lowest location for seed {initial_seed} is {location_list[0]} at seed {seed}")
+    location_list = []
